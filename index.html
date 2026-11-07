@@ -1,0 +1,1900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project 25 — The Birthday Archive</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
+
+:root {
+  --cream:#fffaf4;
+  --paper:#fffdf9;
+  --pink:#f0c8d8;
+  --pink-dark:#bd809b;
+  --lavender:#dcd6f4;
+  --lavender-dark:#9186bb;
+  --ink:#554b5b;
+  --muted:#938797;
+  --line:#eee2e9;
+  --mono:'DM Mono',monospace;
+  --sans:'DM Sans',sans-serif;
+  --serif:'Playfair Display',serif;
+}
+
+* { box-sizing:border-box; }
+
+body {
+  margin:0;
+  min-height:100vh;
+  color:var(--ink);
+  font-family:var(--sans);
+  background:
+    radial-gradient(ellipse at 8% 0%,#f9e7ef 0,transparent 35%),
+    radial-gradient(ellipse at 100% 20%,#e9e5fa 0,transparent 32%),
+    var(--cream);
+}
+
+button,input { font:inherit; }
+button { cursor:pointer; }
+.hidden { display:none!important; }
+
+.page {
+  width:min(1000px,calc(100% - 32px));
+  margin:auto;
+  padding:24px 0;
+}
+
+.topbar,.brand,.progress-heading,.progress-caption,
+.evidence-heading,.footer {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+}
+
+.topbar {
+  padding-bottom:17px;
+  border-bottom:1px solid var(--line);
+}
+
+.brand { justify-content:flex-start; }
+
+.brand-icon {
+  display:grid;
+  place-items:center;
+  width:44px;
+  height:44px;
+  border-radius:15px;
+  background:var(--lavender);
+  font-size:22px;
+}
+
+.brand-title,.brand-subtitle,.eyebrow,.mini-label,
+.archive-stamp,.part-label,.activity-number,.activity-status,
+.progress-count,.evidence-count,.evidence-id {
+  font-family:var(--mono);
+  letter-spacing:1px;
+}
+
+.brand-title { font-size:12px; }
+
+.brand-subtitle {
+  font-size:9px;
+  color:var(--muted);
+  margin-top:4px;
+}
+
+.archive-stamp {
+  font-size:9px;
+  color:var(--pink-dark);
+  border:1px dashed var(--pink-dark);
+  padding:8px;
+  border-radius:7px;
+}
+
+.hero {
+  display:grid;
+  grid-template-columns:1.35fr .75fr;
+  align-items:center;
+  gap:30px;
+  padding:40px 0 30px;
+}
+
+.eyebrow {
+  color:var(--lavender-dark);
+  font-size:10px;
+  text-transform:uppercase;
+}
+
+h1,.part-heading h2,.hero-card h3,.choice-title,
+.evidence-heading h2,.modal h2 {
+  font-family:var(--serif);
+  font-weight:500;
+}
+
+h1 {
+  font-size:clamp(38px,6vw,62px);
+  line-height:1.08;
+  letter-spacing:-1px;
+  margin:13px 0 17px;
+}
+
+h1 em { color:var(--pink-dark); }
+
+.hero-copy,.part-heading p {
+  max-width:600px;
+  color:#827786;
+  font-size:13px;
+  line-height:1.9;
+}
+
+.hero-card,.progress-card,.part-tab,.activity-card,
+.choice-card,.evidence-section {
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.8);
+  border-radius:17px;
+}
+
+.hero-card { padding:24px; }
+
+.mini-label {
+  font-size:9px;
+  color:var(--muted);
+}
+
+.ufo-illustration {
+  font-size:43px;
+  margin:18px 0;
+}
+
+.hero-card h3 {
+  font-size:24px;
+  margin:9px 0;
+}
+
+.hero-card p {
+  font-size:11px;
+  line-height:1.8;
+  color:var(--muted);
+}
+
+.progress-card {
+  padding:21px 23px;
+  margin:4px 0 37px;
+}
+
+.progress-heading strong { font-size:13px; }
+
+.progress-count {
+  color:var(--lavender-dark);
+  font-size:10px;
+}
+
+.progress-track {
+  height:8px;
+  background:#f1eaf0;
+  border-radius:20px;
+  overflow:hidden;
+  margin-top:13px;
+}
+
+.progress-fill {
+  height:100%;
+  width:0;
+  background:linear-gradient(90deg,#d8c9f0,#f0c6d8);
+  transition:width .3s;
+}
+
+.progress-caption {
+  margin-top:10px;
+  color:var(--muted);
+  font-size:10px;
+}
+
+.part-tabs {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin:25px 0 30px;
+}
+
+.part-tab {
+  text-align:left;
+  padding:17px 19px;
+  color:var(--ink);
+}
+
+.part-tab.active {
+  background:#f1eafa;
+  border-color:#d6c9eb;
+}
+
+.part-tab:disabled {
+  opacity:.5;
+  cursor:not-allowed;
+}
+
+.part-label {
+  color:var(--lavender-dark);
+  font-size:9px;
+}
+
+.part-name {
+  display:block;
+  font:21px var(--serif);
+  margin-top:7px;
+}
+
+.part-status {
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+  margin-top:5px;
+}
+
+.part-heading { margin:35px 0 17px; }
+
+.part-heading h2 {
+  font-size:30px;
+  margin:8px 0 6px;
+}
+
+.part-heading p { margin:0; }
+
+.activity-list {
+  display:grid;
+  gap:12px;
+}
+
+.activity-card {
+  display:grid;
+  grid-template-columns:53px minmax(0,1fr) auto;
+  align-items:center;
+  gap:15px;
+  padding:17px;
+}
+
+.activity-card.completed {
+  background:#f9fff9;
+  border-color:#d8e8d9;
+}
+
+.activity-card.locked { opacity:.62; }
+
+.activity-icon {
+  display:grid;
+  place-items:center;
+  width:53px;
+  height:53px;
+  border-radius:16px;
+  background:#f4eafa;
+  font-size:23px;
+}
+
+.activity-title {
+  font-size:14px;
+  font-weight:600;
+}
+
+.activity-desc {
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.7;
+  margin-top:4px;
+}
+
+.activity-number {
+  color:var(--lavender-dark);
+  font-size:9px;
+  margin-bottom:5px;
+}
+
+.activity-status {
+  color:var(--muted);
+  font-size:9px;
+  margin-top:8px;
+}
+
+.completed .activity-status { color:#65916e; }
+
+.activity-button,.choice-button,.modal-button {
+  color:#76698f;
+  background:#f1eafa;
+  border:1px solid #e0d5f0;
+  padding:11px 14px;
+  border-radius:10px;
+  font-size:10px;
+}
+
+.activity-button:disabled {
+  cursor:not-allowed;
+  color:#a69ca8;
+  background:#f4f0f2;
+}
+
+.choice-intro {
+  padding:17px 19px;
+  border-radius:14px;
+  background:#f9edf3;
+  border:1px solid #f0dce7;
+  margin-bottom:15px;
+}
+
+.choice-intro h3 {
+  font:21px var(--serif);
+  margin:0 0 7px;
+}
+
+.choice-intro p {
+  color:#8c7c8b;
+  font-size:11px;
+  line-height:1.8;
+  margin:0;
+}
+
+.choice-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:13px;
+}
+
+.choice-card {
+  display:flex;
+  flex-direction:column;
+  padding:20px;
+  min-height:220px;
+}
+
+.choice-card.completed {
+  background:#f8fff8;
+  border-color:#d6e8d7;
+}
+
+.choice-icon {
+  font-size:27px;
+  margin-bottom:13px;
+}
+
+.choice-number {
+  font:9px var(--mono);
+  color:var(--lavender-dark);
+}
+
+.choice-title {
+  font-size:20px;
+  margin:7px 0;
+}
+
+.choice-description {
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.8;
+  flex:1;
+  margin-bottom:15px;
+}
+
+.choice-button { width:100%; }
+
+.evidence-section {
+  margin-top:45px;
+  padding:23px;
+}
+
+.evidence-heading { margin-bottom:18px; }
+
+.evidence-heading h2 {
+  font-size:27px;
+  margin:7px 0 0;
+}
+
+.evidence-count {
+  color:var(--muted);
+  font-size:9px;
+}
+
+.evidence-list {
+  display:grid;
+  gap:10px;
+}
+
+.evidence-card,.evidence-placeholder {
+  padding:16px 17px;
+  border:1px solid #eee4ed;
+  border-radius:13px;
+  background:#fffdfa;
+}
+
+.evidence-meta {
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  font:9px var(--mono);
+}
+
+.evidence-title {
+  font:20px var(--serif);
+  margin:10px 0;
+}
+
+.evidence-text {
+  color:#887b8a;
+  font-size:12px;
+  line-height:1.9;
+  white-space:pre-line;
+}
+
+.evidence-unlocked { color:#65916e; }
+
+.evidence-placeholder {
+  text-align:center;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.8;
+  border-style:dashed;
+}
+
+.final-card {
+  display:none;
+  margin:30px 0;
+  padding:35px 25px;
+  text-align:center;
+  border:1px solid #e8cbdc;
+  background:linear-gradient(140deg,#fff2f6,#f3efff);
+  border-radius:22px;
+}
+
+.final-card.visible { display:block; }
+
+.final-card h2 {
+  font:clamp(28px,5vw,42px) var(--serif);
+}
+
+.final-card p {
+  max-width:620px;
+  margin:12px auto;
+  color:#85798a;
+  font-size:12px;
+  line-height:2;
+  white-space:pre-line;
+}
+
+.final-subject {
+  color:var(--pink-dark);
+  font:13px var(--mono);
+  letter-spacing:2px;
+  margin:24px 0;
+}
+
+.reset-area {
+  margin-top:38px;
+  padding:25px 15px 32px;
+  border-top:1px solid var(--line);
+  text-align:center;
+}
+
+.reset-button {
+  border:1px solid #e6d7e3;
+  background:rgba(255,255,255,.6);
+  color:#a38c9f;
+  border-radius:10px;
+  padding:11px 17px;
+  font:9px var(--mono);
+}
+
+.reset-caption {
+  font-size:10px;
+  color:#b0a3b0;
+  margin:9px 0 0;
+}
+
+.footer {
+  padding:19px 0;
+  color:#b0a3b0;
+  font:9px var(--mono);
+}
+
+.modal-backdrop {
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:100;
+  background:rgba(83,68,89,.25);
+  backdrop-filter:blur(5px);
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+}
+
+.modal-backdrop.open { display:flex; }
+
+.modal {
+  width:min(550px,100%);
+  max-height:90vh;
+  overflow-y:auto;
+  padding:25px;
+  border:1px solid #e6d8eb;
+  border-radius:21px;
+  background:#fffdf9;
+  box-shadow:0 18px 70px rgba(95,73,104,.2);
+}
+
+.modal-top {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:21px;
+}
+
+.modal-tag {
+  color:var(--lavender-dark);
+  font:9px var(--mono);
+  letter-spacing:1px;
+}
+
+.close-button {
+  border:1px solid #eee3eb;
+  background:#fff8fb;
+  color:#9a899a;
+  border-radius:9px;
+  width:33px;
+  height:33px;
+}
+
+.modal h2 {
+  font-size:30px;
+  margin:0 0 12px;
+}
+
+.modal-copy {
+  color:#887b8a;
+  font-size:12px;
+  line-height:1.95;
+  white-space:pre-line;
+}
+
+.modal-divider {
+  height:1px;
+  background:var(--line);
+  margin:20px 0;
+}
+
+.modal-button {
+  width:100%;
+  margin-top:17px;
+  padding:13px 15px;
+}
+
+.code-label {
+  display:block;
+  font:9px var(--mono);
+  color:var(--lavender-dark);
+  letter-spacing:1px;
+  margin-bottom:9px;
+}
+
+.code-input {
+  width:100%;
+  padding:13px;
+  color:var(--ink);
+  background:#fff9fc;
+  border:1px solid #e5d8ed;
+  border-radius:10px;
+  font:13px var(--mono);
+  letter-spacing:2px;
+}
+
+.code-error {
+  color:#bb728d;
+  font-size:11px;
+  margin-top:8px;
+  min-height:15px;
+}
+
+.success-message {
+  color:#827487;
+  font-size:12px;
+  line-height:1.9;
+  white-space:pre-line;
+}
+
+.access-gate {
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  background:
+    radial-gradient(ellipse at 8% 0%,#f9e7ef 0,transparent 35%),
+    radial-gradient(ellipse at 100% 20%,#e9e5fa 0,transparent 32%),
+    #fffaf4;
+}
+
+.access-card {
+  width:min(420px,100%);
+  padding:38px 28px;
+  text-align:center;
+  background:#fffdf9;
+  border:1px solid #eee2e9;
+  border-radius:22px;
+  box-shadow:0 18px 60px rgba(95,73,104,.12);
+}
+
+.access-icon {
+  font-size:38px;
+  margin-bottom:18px;
+}
+
+.access-label {
+  color:#9186bb;
+  font:10px var(--mono);
+  letter-spacing:2px;
+  margin-bottom:12px;
+}
+
+.access-card h2 {
+  font:30px var(--serif);
+  margin:0 0 12px;
+}
+
+.access-description {
+  color:#938797;
+  font-size:13px;
+  line-height:1.8;
+  margin-bottom:24px;
+}
+
+.access-input {
+  width:100%;
+  padding:14px;
+  border:1px solid #e5d8ed;
+  border-radius:10px;
+  background:#fff9fc;
+  color:#554b5b;
+  font:15px var(--mono);
+  text-align:center;
+  letter-spacing:4px;
+}
+
+.access-button {
+  width:100%;
+  margin-top:13px;
+  padding:14px;
+  border:1px solid #ded3ed;
+  border-radius:10px;
+  background:#f0eafa;
+  color:#76678e;
+  font:11px var(--mono);
+  letter-spacing:1px;
+}
+
+.access-error {
+  min-height:18px;
+  margin-top:12px;
+  color:#bb728d;
+  font-size:12px;
+}
+
+body.access-locked { overflow:hidden; }
+body.access-locked .page { display:none!important; }
+
+@media(max-width:650px) {
+  .page {
+    width:calc(100% - 24px);
+    padding-top:15px;
+  }
+
+  .hero {
+    grid-template-columns:1fr;
+    padding-top:33px;
+    gap:20px;
+  }
+
+  .part-tabs { gap:8px; }
+  .part-tab { padding:14px 12px; }
+  .part-name { font-size:18px; }
+
+  .activity-card {
+    grid-template-columns:43px minmax(0,1fr);
+    padding:13px;
+    gap:11px;
+  }
+
+  .activity-icon {
+    width:43px;
+    height:43px;
+    font-size:20px;
+  }
+
+  .activity-action-wrap { grid-column:2; }
+  .activity-button { width:100%; }
+  .choice-grid { grid-template-columns:1fr; }
+  .progress-card,.evidence-section { padding:17px; }
+  .footer {
+    flex-direction:column;
+    align-items:flex-start;
+  }
+}
+</style>
+</head>
+
+<body class="access-locked">
+
+<div class="access-gate" id="accessGate">
+  <div class="access-card">
+    <div class="access-icon">🛸 ✦</div>
+    <div class="access-label">PROJECT 25 · CLASSIFIED</div>
+    <h2>Restricted Access</h2>
+    <p class="access-description">
+      This archive is classified.<br>
+      Enter your access code to continue, Investigator.
+    </p>
+
+    <form id="accessForm">
+      <input
+        class="access-input"
+        id="accessCode"
+        type="password"
+        placeholder="ACCESS CODE"
+        autocomplete="off"
+        aria-label="Access code"
+        required
+      >
+      <button class="access-button" type="submit">
+        UNLOCK THE ARCHIVE ✦
+      </button>
+      <div class="access-error" id="accessError" aria-live="polite"></div>
+    </form>
+  </div>
+</div>
+
+<div class="page">
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">🛸</div>
+      <div>
+        <div class="brand-title">PROJECT 25</div>
+        <div class="brand-subtitle">A COZY LITTLE COSMIC MYSTERY</div>
+      </div>
+    </div>
+    <div class="archive-stamp">TOP SECRET · FILE 025</div>
+  </header>
+
+  <section class="hero">
+    <div>
+      <div class="eyebrow">The Vale Archive · Birthday Edition</div>
+      <h1>Something strange<br>is happening, <em>birthday boy.</em></h1>
+      <p class="hero-copy">
+        Welcome, Investigator. Dr. Vale has left you a collection of activities,
+        mysterious files, and evidence that doesn't quite make sense.
+        Complete your assignments, recover the missing information, and follow
+        the trail to its final destination. Take your time. Enjoy the snacks.
+        Question absolutely everything.
+      </p>
+    </div>
+
+    <div class="hero-card">
+      <div class="mini-label">YOUR PERSONAL CASE FILE</div>
+      <div class="ufo-illustration">🛸 ✦ ☁️</div>
+      <h3>Subject No. 25</h3>
+      <p>
+        Two days. A collection of suspiciously wholesome activities.
+        One investigator who may be closer to the truth than he realises.
+      </p>
+    </div>
+  </section>
+
+  <section class="progress-card">
+    <div class="progress-heading">
+      <strong>✦ Investigation progress</strong>
+      <span class="progress-count" id="progressCount">0 / 13 completed</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="progress-caption">
+      <span id="progressMessage">The investigation is just beginning...</span>
+      <span id="progressPercent">0%</span>
+    </div>
+  </section>
+
+  <div class="eyebrow">Choose your chapter</div>
+
+  <div class="part-tabs">
+    <button class="part-tab active" id="part1Tab" onclick="switchPart(1)">
+      <span class="part-label">PART 01</span>
+      <span class="part-name">The Investigation</span>
+      <span class="part-status" id="part1Status">Day One · Fieldwork & discovery</span>
+    </button>
+
+    <button class="part-tab" id="part2Tab" onclick="switchPart(2)">
+      <span class="part-label">PART 02</span>
+      <span class="part-name">The Birthday</span>
+      <span class="part-status" id="part2Status">Day Two · Unlocks after Part One</span>
+    </button>
+  </div>
+
+  <section id="part1Content">
+    <div class="part-heading">
+      <div class="eyebrow">Day One · Follow the trail</div>
+      <h2>The Investigation</h2>
+      <p>
+        Complete each assignment in order. Every correct completion code
+        unlocks another piece of the archive.
+      </p>
+    </div>
+    <div class="activity-list" id="dayOneActivities"></div>
+  </section>
+
+  <section id="part2Content" class="hidden">
+    <div class="part-heading">
+      <div class="eyebrow">Day Two · The birthday</div>
+      <h2>The Birthday</h2>
+      <p>
+        The investigation continues. Complete the main assignments
+        to unlock the optional experiments.
+      </p>
+    </div>
+
+    <div class="activity-list" id="dayTwoMainActivities"></div>
+
+    <section id="sideMissionsSection" class="hidden">
+      <div class="part-heading">
+        <div class="eyebrow">Additional experiments</div>
+        <h2>Choose your side missions</h2>
+      </div>
+
+      <div class="choice-intro">
+        <h3>Four experiments. One bigger picture.</h3>
+        <p>
+          Complete all four optional activities to uncover the combined evidence.
+        </p>
+      </div>
+
+      <div class="choice-grid" id="sideMissionCards"></div>
+    </section>
+
+    <section class="final-card" id="finalCard">
+      <div class="eyebrow">Final classification · Project 25</div>
+      <h2>The truth is out.</h2>
+      <div class="final-subject">WITNESS 25 · FINAL CLASSIFICATION</div>
+      <p id="finalText"></p>
+    </section>
+  </section>
+
+  <section class="evidence-section">
+    <div class="evidence-heading">
+      <div>
+        <div class="eyebrow">Private messages from Dr. Vale</div>
+        <h2>Vale's Investigation Notes</h2>
+      </div>
+      <div class="evidence-count" id="evidenceCount">0 FILES RECOVERED</div>
+    </div>
+
+    <div class="evidence-list" id="evidenceList"></div>
+  </section>
+
+  <div class="reset-area">
+    <button class="reset-button" onclick="resetGame()">RESET GAME PROGRESS</button>
+    <p class="reset-caption">
+      This erases all saved activity completions on this browser.
+    </p>
+  </div>
+
+  <footer class="footer">
+    <span>THE VALE ARCHIVE · PRIVATE BIRTHDAY FILES</span>
+    <span>FILE WITH CARE · KEEP THE SNACKS CLOSE</span>
+  </footer>
+
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop" onclick="backdropClose(event)">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+
+    <div class="modal-top">
+      <div class="modal-tag" id="modalTag">ACTIVITY BRIEFING</div>
+      <button class="close-button" onclick="closeModal()" aria-label="Close">✕</button>
+    </div>
+
+    <h2 id="modalTitle">Activity title</h2>
+    <div class="modal-copy" id="modalCopy"></div>
+
+    <div class="modal-divider"></div>
+
+    <div id="instructionsStage">
+      <p class="modal-copy">
+        Read your instructions carefully. Once you have completed the activity,
+        return here to enter the completion code and recover the next file.
+      </p>
+      <button class="modal-button" id="finishActivityButton" onclick="showCodeStage()">
+        I'VE FINISHED THIS ACTIVITY →
+      </button>
+    </div>
+
+    <div id="codeStage" class="hidden">
+      <label class="code-label" for="codeInput">COMPLETION CODE</label>
+      <input
+        class="code-input"
+        id="codeInput"
+        type="text"
+        placeholder="ENTER YOUR CODE"
+        autocomplete="off"
+      >
+      <div class="code-error" id="codeError"></div>
+      <button class="modal-button" onclick="submitCode()">
+        VERIFY CODE & UNLOCK
+      </button>
+    </div>
+
+    <div id="successStage" class="hidden">
+      <div class="success-message" id="successMessage"></div>
+      <button class="modal-button" onclick="continueAfterSuccess()">
+        BACK TO THE ARCHIVE ✦
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = "project25_pastel_archive_v1";
+
+/* DAY ONE — MESSAGES 01–07 */
+
+const dayOne = [
+  {
+    id:"breakfast",
+    number:"01",
+    icon:"☕",
+    title:"Breakfast & Witness Analysis",
+    desc:"A cozy breakfast and a rather unusual morning challenge.",
+
+    instructions:`MORNING BRIEFING
+
+Before the adventure begins, it's time to make breakfast. But there's a little twist...
+
+You must work together to make the perfect pancakes while following three special rules:
+
+One person must keep their eyes closed. The other person must cover their ears.
+
+OBJECTIVE: Complete the breakfast challenge and review the witness files.`,
+
+    code:"BRIDGE",
+    evidenceTitle:"01. The Duplicate Records",
+
+    evidence:`I found two witness files with almost identical personal details. Different names, different lives, but the same unusual medical history. That can't be a coincidence. Someone has been editing the records.`
+  },
+
+  {
+    id:"london",
+    number:"02",
+    icon:"🛸",
+    title:"London Field Mission",
+    desc:"A field trip with a suspicious number of unanswered questions.",
+
+    instructions:`FIELD MISSION
+
+Proceed to the planned London destination. Follow the instructions in the physical mission materials and investigate the location as instructed.
+
+Observe your surroundings, look for the details specified in your field notes, and document anything that seems unusual.
+
+OBJECTIVE: Complete the London mission and follow the instructions in your field materials.`,
+
+    code:"LONDON",
+    evidenceTitle:"02. The Missing Eleven Minutes",
+
+    evidence:`Every recording from the night of the incident has the same eleven-minute gap. Different cameras. Different locations. Someone erased exactly the same amount of time.`
+  },
+
+  {
+    id:"lunch",
+    number:"3",
+    icon:"🥐",
+    title:"Lunch Break",
+    desc:"Even investigators need food. This is an official order.",
+
+    instructions:`RECOVERY PROTOCOL
+
+Take a proper lunch break together at the planned place. Choose your food, enjoy the moment, and discuss your current theories if you feel like it.
+
+Pick the card that best matches your appetite.
+
+No investigation is worth becoming hangry. This is a direct instruction from Dr. Vale.
+
+OBJECTIVE: Have lunch and recharge before the next field assignment.`,
+
+    code:"ECHO",
+    evidenceTitle:"03. Memories of Things That Never Happened",
+
+    evidence:`Three witnesses remember the same event. But according to every official record, that event never happened. They even remember the same details. What if they aren't remembering their own experiences?`
+  },
+
+  {
+    id:"christmas",
+    number:"04",
+    icon:"🎄",
+    title:"Christmas Wonderland",
+    desc:"A festive detour. Possibly suspicious. Definitely cozy.",
+
+    instructions:`FIELD NOTE 04
+
+Before we head home, there's one more stop to make.
+
+Your mission is to find a Christmas shop somewhere in London. No exact address. No one telling you where to go. Just you, your detective skills, and a city full of possibilities.
+
+The mission is allowed to be wholesome. The department has approved one moment of unprofessional joy.
+
+OBJECTIVE: Complete your Christmas-themed outing.`,
+
+    code:"WINTER",
+    evidenceTitle:"04. The Faces That Changed",
+
+    evidence:`I compared the original photographs with the latest ones. Some witnesses look almost identical, but not quite. Their scars are missing. Their fingerprints don't match. Yet their families insist nothing has changed.`
+  },
+
+  {
+    id:"snacks",
+    number:"05",
+    icon:"🍬",
+    title:"The Snack Experiment",
+    desc:"A scientific investigation into snacks of questionable quality.",
+
+    instructions:`EXPERIMENT PROTOCOL
+
+🛒 MISSION: THE SNACK SHOWDOWN
+
+Two shoppers. Four categories. One winner.
+
+THE RULES
+
+1. Split up and shop separately.
+2. Each of us picks one item from each category:
+   - 🥨 Something salty
+   - 🍫 Something sweet
+   - 🍕 Something for dinner
+   - 🥤 Something to drink
+3. Meet up and reveal your choices!
+
+THE FINAL ROUND
+
+Compare your picks and agree on one winner per category. No keeping both!
+
+Mission complete when: We've chosen our four winning items for tonight's snack feast.
+
+May the best snack picker win! ♡
+
+OBJECTIVE: Complete the snack experiment together.`,
+
+    code:"PASTA",
+    evidenceTitle:"05. The Signal from Nowhere",
+
+    evidence:`The disappearances coincide with a repeating signal detected by a nearby monitoring station. It isn't any known human transmission. The strangest part? The signal stops whenever a witness is reported missing.`
+  },
+
+  {
+    id:"movie",
+    number:"06",
+    icon:"🎬",
+    title:"Movie Roulette",
+    desc:"Let fate pick the movie. Take absolutely no responsibility.",
+
+    instructions:`EVENING PROTOCOL
+
+Time to watch a movie! If you can't decide, use this roulette to choose what you will watch. Make yourselves comfortable, prepare snacks, and watch the selected film together <3
+
+https://movieroulette.app/
+
+OBJECTIVE: Complete movie night.`,
+
+    code:"VALE",
+    evidenceTitle:"06. The Biological Anomaly",
+
+    evidence:`One sample from the investigation doesn't match any human reference profile in the database. The report was immediately classified. Someone added a handwritten note: 'Do not compare with the original subject.' Why would they write that?`
+  },
+
+  {
+    id:"sleepover",
+    number:"07",
+    icon:"🌙",
+    title:"Sleepover Protocol",
+    desc:"The official end of day one. Rest is mandatory.",
+
+    instructions:`END-OF-DAY REPORT
+
+Complete your sleepover or cozy evening routine. Get comfortable, talk, laugh, and enjoy having the day to yourselves.
+
+The first day of the investigation is now complete. No further fieldwork is required tonight.
+
+OBJECTIVE: Rest before the next phase of the investigation.`,
+
+    code:"goodnight",
+    evidenceTitle:"07. The Twenty-Fifth Witness",
+
+    evidence:`The original list contains twenty-five witnesses. The revised list contains twenty-five names too, but one original identity has disappeared. Someone didn't remove a witness. They replaced one.`
+  }
+];
+
+
+/* DAY TWO — MESSAGES 08–09 */
+
+const dayTwoMain = [
+  {
+    id:"birthdayBreakfast",
+    number:"08",
+    icon:"🎂",
+    title:"Birthday Briefing",
+    desc:"A birthday morning with a classified agenda.",
+
+    instructions:`BIRTHDAY BRIEFING
+
+Begin the day with a proper birthday breakfast. Review what you have discovered so far and decide which clues are most suspicious.
+
+Dr. Vale recommends eating before attempting any further deductions.
+
+OBJECTIVE: Complete your birthday breakfast and prepare for the next assignment.`,
+
+    code:"MORNING",
+    evidenceTitle:"08. The Original Was Taken",
+
+    evidence:`I recovered a fragment of an older report: 'Original subject removed from location. Replacement integrated successfully.'
+
+No names. No explanation. Just one final sentence:
+
+'The replacement must not discover the truth.'`
+  },
+
+  {
+    id:"pizzaSupply",
+    number:"09",
+    icon:"🍕",
+    title:"The Supply Run",
+    desc:"Gather the supplies required for the final experiments.",
+
+    instructions:`SUPPLY RUN
+
+Head out together and collect the ingredients and supplies needed for the birthday activities. Follow your prepared shopping list, and choose a book you like.
+
+Mission complete when we've got everything we need to make our homemade pizza. ♡
+
+OBJECTIVE: Complete the supply run and return to base.`,
+
+    code:"SUPPLY",
+    evidenceTitle:"09. The Subject Who Doesn't Know",
+
+    evidence:`The replacement wasn't supposed to act suspicious. They were supposed to live an ordinary life, surrounded by people who believed they had always been there.
+
+According to the report, the subject has no memory of the original incident.`
+  }
+];
+
+
+/* OPTIONAL MISSIONS */
+
+const sideMissions = [
+  {
+    id:"paperEscape",
+    number:"10",
+    icon:"📄",
+    title:"MYSTERY",
+    description:"A little mystery, a few unexpected twists, and a challenge that might test your teamwork.",
+
+    instructions:`CONTAINMENT CHALLENGE
+
+Set up and complete the paper escape room using the materials prepared for you. Read the clues carefully, solve the puzzles, and work together to reach the final answer.
+
+Do not skip steps. The archive has a strict anti-cheating policy, despite its questionable security standards.
+
+OBJECTIVE: Solve the paper escape room.`,
+
+    code:"ARCHIVE"
+  },
+
+  {
+    id:"CHALLANGE",
+    number:"11",
+    icon:"🧀",
+    title:"FOOD CHALLANGE",
+    description:"No expert skills required - just curiosity and a willingness to taste the results.",
+
+    instructions:`CULINARY EXPERIMENT
+
+Complete the planned pizza challenge. Follow the rules you prepared, make your creations, and judge the results together.
+
+The archive does not recognize “it looks weird” as a formal scientific measurement. It may, however, be accepted as a personal opinion.
+
+OBJECTIVE: Finish the pizza challenge.`,
+
+    code:"MOZZARELLA"
+  },
+
+  {
+    id:"gummyBattleships",
+    number:"12",
+    icon:"🍭",
+    title:"SWEET BATTLE",
+    description:"A game where strategy meets a little friendly competition. Let's see who comes out on top.",
+
+    instructions:`TACTICAL EXERCISE
+
+Set up your gummy battleships game and take turns trying to locate the other person's hidden fleet. Follow the rules you have chosen and keep track of the hits and misses.
+
+The archive recommends diplomacy. It does not require it.
+
+OBJECTIVE: Finish the gummy battleships challenge.`,
+
+    code:"SWEETTOOTH"
+  },
+
+  {
+    id:"decorate",
+    number:"13",
+    icon:"✨",
+    title:"ARTSY",
+    description:"Get creative, set the mood, and prepare for a little surprise that brings everything together.",
+
+    instructions:`BASE TRANSFORMATION
+
+Decorate the apartment using the supplies prepared for the birthday. Make the space cozy, festive, and unmistakably yours.
+
+This operation is approved by the archive. Aesthetic choices are not subject to peer review.
+
+OBJECTIVE: Finish decorating the apartment and prepare for the final reveal.`,
+
+    code:"STARLIGHT"
+  }
+];
+
+
+/* MESSAGE 10 — UNLOCKED AFTER ALL FOUR OPTIONAL MISSIONS */
+
+const sideEvidence = {
+  title:"10. The Date That Shouldn't Exist",
+
+  text:`I finally accessed the sealed file. The original witness's identity is classified, but the replacement's records contain one detail that shouldn't be there.
+
+A date connected to the subject appears in two places: once in their personal history, and once in the original abduction report.
+
+I still don't know what it means. But I don't think this file found its way to us by accident.`
+};
+
+
+/* MESSAGE 11 — FINAL REVELATION */
+
+const finalEvidence = {
+  title:"11. The Truth About Witness 25",
+
+  text:`I thought I was investigating the disappearance of a witness. I was wrong.
+
+The original Witness 25 was taken. Someone else returned in their place. The records were altered, the memories were manipulated, and the truth was buried.
+
+The person who replaced them was never told what happened.
+
+I have the original file now. I know who they took. I know who came back.
+
+And I know who you are.
+
+YOU ARE WITNESS 25.`
+};
+
+
+const ALL_ACTIVITIES = [...dayOne,...dayTwoMain,...sideMissions];
+const TOTAL_ACTIVITIES = ALL_ACTIVITIES.length;
+
+let state = loadState();
+let activePart = 1;
+let activeActivityId = null;
+
+
+function freshState() {
+  return {
+    completed:[],
+    sideEvidenceUnlocked:false,
+    finalEvidenceUnlocked:false
+  };
+}
+
+
+function loadState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+
+    if (!saved || !Array.isArray(saved.completed)) {
+      return freshState();
+    }
+
+    return {
+      completed:[
+        ...new Set(
+          saved.completed.filter(id =>
+            ALL_ACTIVITIES.some(a => a.id === id)
+          )
+        )
+      ],
+      sideEvidenceUnlocked:Boolean(saved.sideEvidenceUnlocked),
+      finalEvidenceUnlocked:Boolean(saved.finalEvidenceUnlocked)
+    };
+
+  } catch(error) {
+    return freshState();
+  }
+}
+
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+}
+
+
+function isCompleted(id) {
+  return state.completed.includes(id);
+}
+
+
+function dayOneComplete() {
+  return dayOne.every(a => isCompleted(a.id));
+}
+
+
+function dayTwoMainComplete() {
+  return dayTwoMain.every(a => isCompleted(a.id));
+}
+
+
+function sideMissionsUnlocked() {
+  return dayOneComplete() && dayTwoMainComplete();
+}
+
+
+function allSideMissionsComplete() {
+  return sideMissions.every(a => isCompleted(a.id));
+}
+
+
+function isUnlocked(activity) {
+  if (isCompleted(activity.id)) return true;
+
+  if (dayOne.some(a => a.id === activity.id)) {
+    const i = dayOne.findIndex(a => a.id === activity.id);
+
+    return i === 0 ||
+      dayOne.slice(0,i).every(a => isCompleted(a.id));
+  }
+
+  if (dayTwoMain.some(a => a.id === activity.id)) {
+    if (!dayOneComplete()) return false;
+
+    const i = dayTwoMain.findIndex(a => a.id === activity.id);
+
+    return i === 0 ||
+      dayTwoMain.slice(0,i).every(a => isCompleted(a.id));
+  }
+
+  return sideMissionsUnlocked();
+}
+
+
+/* RENDER EVERYTHING */
+
+function renderAll() {
+  renderActivities("dayOneActivities",dayOne);
+  renderActivities("dayTwoMainActivities",dayTwoMain);
+  renderSideMissions();
+  renderEvidence();
+  updateProgress();
+  updatePartTabs();
+
+  document.getElementById("sideMissionsSection")
+    .classList.toggle("hidden",!sideMissionsUnlocked());
+
+  document.getElementById("finalCard")
+    .classList.toggle("visible",state.finalEvidenceUnlocked);
+
+  document.getElementById("finalText").textContent = finalEvidence.text;
+
+  saveState();
+}
+
+
+function renderActivities(containerId,activities) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = "";
+
+  activities.forEach(activity => {
+    const done = isCompleted(activity.id);
+    const unlocked = isUnlocked(activity);
+
+    const card = document.createElement("article");
+
+    card.className =
+      "activity-card" +
+      (done ? " completed" : "") +
+      (unlocked ? " available" : " locked");
+
+    card.innerHTML = `
+      <div class="activity-icon">${activity.icon}</div>
+
+      <div class="activity-info">
+        <div class="activity-number">ACTIVITY ${activity.number}</div>
+        <div class="activity-title">${activity.title}</div>
+        <div class="activity-desc">${activity.desc}</div>
+
+        <div class="activity-status">
+          ${
+            done
+              ? "✓ COMPLETED · VALE MESSAGE RECOVERED"
+              : unlocked
+                ? "✦ READY WHEN YOU ARE"
+                : "🔒 COMPLETE THE PREVIOUS ACTIVITY"
+          }
+        </div>
+      </div>
+
+      <div class="activity-action-wrap">
+        <button class="activity-button" ${unlocked ? "" : "disabled"}>
+          ${done ? "View activity ↗" : unlocked ? "Start activity →" : "Locked"}
+        </button>
+      </div>
+    `;
+
+    card.querySelector("button").addEventListener("click",() => {
+      if (unlocked) openActivity(activity.id);
+    });
+
+    container.appendChild(card);
+  });
+}
+
+
+function renderSideMissions() {
+  const container = document.getElementById("sideMissionCards");
+  container.innerHTML = "";
+
+  sideMissions.forEach(activity => {
+    const done = isCompleted(activity.id);
+
+    const card = document.createElement("article");
+    card.className = "choice-card" + (done ? " completed" : "");
+
+    card.innerHTML = `
+      <div class="choice-icon">${activity.icon}</div>
+      <div class="choice-number">OPTIONAL MISSION ${activity.number}</div>
+      <div class="choice-title">${activity.title}</div>
+      <div class="choice-description">${activity.description}</div>
+
+      ${done ? '<div class="choice-status">✓ MISSION COMPLETED</div>' : ""}
+
+      <button class="choice-button">
+        ${done ? "View instructions again ↗" : "I CHOOSE THIS ACTIVITY →"}
+      </button>
+    `;
+
+    card.querySelector("button").addEventListener("click",() => {
+      openActivity(activity.id);
+    });
+
+    container.appendChild(card);
+  });
+}
+
+
+/* BUILD A MESSAGE FROM VALE */
+
+function buildEvidenceCard(id,title,text) {
+  const card = document.createElement("article");
+  card.className = "evidence-card";
+
+  card.innerHTML = `
+    <div class="evidence-meta">
+      <span class="evidence-id">
+        FILE ${String(id).padStart(2,"0")} · DR. VALE
+      </span>
+      <span class="evidence-unlocked">✓ DECLASSIFIED</span>
+    </div>
+
+    <div class="evidence-title">${title}</div>
+    <div class="evidence-text">${text}</div>
+  `;
+
+  return card;
+}
+
+
+/* DISPLAY ONLY UNLOCKED MESSAGES */
+
+function renderEvidence() {
+  const container = document.getElementById("evidenceList");
+  container.innerHTML = "";
+
+  let count = 0;
+
+  [...dayOne,...dayTwoMain].forEach(activity => {
+    if (isCompleted(activity.id)) {
+      container.appendChild(
+        buildEvidenceCard(
+          ++count,
+          activity.evidenceTitle,
+          activity.evidence
+        )
+      );
+    }
+  });
+
+  if (allSideMissionsComplete()) {
+    state.sideEvidenceUnlocked = true;
+
+    container.appendChild(
+      buildEvidenceCard(
+        ++count,
+        sideEvidence.title,
+        sideEvidence.text
+      )
+    );
+
+  } else if (sideMissionsUnlocked()) {
+    const placeholder = document.createElement("div");
+    placeholder.className = "evidence-placeholder";
+
+    placeholder.innerHTML = `
+      <div style="font-size:23px">🔒 ✦</div>
+      <strong>Vale’s Tenth Message — Classified</strong>
+      <br>
+      Complete all four optional activities to recover Vale’s tenth message.
+      <br><br>
+      ${sideMissions.filter(a => isCompleted(a.id)).length} of 4 experiments completed
+    `;
+
+    container.appendChild(placeholder);
+  }
+
+  if (state.finalEvidenceUnlocked) {
+    container.appendChild(
+      buildEvidenceCard(
+        ++count,
+        finalEvidence.title,
+        finalEvidence.text
+      )
+    );
+  }
+
+  if (count === 0) {
+    const placeholder = document.createElement("div");
+    placeholder.className = "evidence-placeholder";
+
+    placeholder.innerHTML = `
+      <div style="font-size:23px">🗂️</div>
+      <strong>Your archive is waiting.</strong>
+      <br>
+      Complete your first activity to recover the first message from Vale.
+    `;
+
+    container.appendChild(placeholder);
+  }
+
+  document.getElementById("evidenceCount").textContent =
+    count + (count === 1 ? " FILE RECOVERED" : " FILES RECOVERED");
+}
+
+
+/* PROGRESS BAR */
+
+function updateProgress() {
+  const count = state.completed.length;
+  const percentage = Math.round(count / TOTAL_ACTIVITIES * 100);
+
+  document.getElementById("progressCount").textContent =
+    `${count} / ${TOTAL_ACTIVITIES} completed`;
+
+  document.getElementById("progressFill").style.width =
+    percentage + "%";
+
+  document.getElementById("progressPercent").textContent =
+    percentage + "%";
+
+  let message = "The investigation is just beginning...";
+
+  if (percentage > 0 && percentage < 30) {
+    message = "A few clues are starting to make sense.";
+  }
+
+  if (percentage >= 30 && percentage < 60) {
+    message = "The archive is beginning to open up.";
+  }
+
+  if (percentage >= 60 && percentage < 100) {
+    message = "You're getting very close to the truth...";
+  }
+
+  if (percentage === 100) {
+    message = "The truth is finally within reach, Investigator. ♡";
+  }
+
+  document.getElementById("progressMessage").textContent = message;
+}
+
+
+/* PART TABS */
+
+function updatePartTabs() {
+  document.getElementById("part1Tab")
+    .classList.toggle("active",activePart === 1);
+
+  document.getElementById("part2Tab")
+    .classList.toggle("active",activePart === 2);
+
+  document.getElementById("part2Tab").disabled = !dayOneComplete();
+
+  document.getElementById("part1Status").textContent =
+    dayOneComplete()
+      ? "✓ Day One completed"
+      : `${dayOne.filter(a => isCompleted(a.id)).length} of ${dayOne.length} activities completed`;
+
+  document.getElementById("part2Status").textContent =
+    !dayOneComplete()
+      ? "🔒 Unlock after Day One"
+      : state.completed.length === TOTAL_ACTIVITIES
+        ? "✓ Birthday investigation completed"
+        : `${dayTwoMain.filter(a => isCompleted(a.id)).length + sideMissions.filter(a => isCompleted(a.id)).length} of 6 activities completed`;
+}
+
+
+function switchPart(part) {
+  if (part === 2 && !dayOneComplete()) {
+    alert("Part 2 is still classified. Complete all Part 1 activities first!");
+    return;
+  }
+
+  activePart = part;
+
+  document.getElementById("part1Content")
+    .classList.toggle("hidden",part !== 1);
+
+  document.getElementById("part2Content")
+    .classList.toggle("hidden",part !== 2);
+
+  document.getElementById("part1Tab")
+    .classList.toggle("active",part === 1);
+
+  document.getElementById("part2Tab")
+    .classList.toggle("active",part === 2);
+
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+
+/* ACTIVITY MODAL */
+
+function openActivity(id) {
+  const activity = ALL_ACTIVITIES.find(a => a.id === id);
+
+  if (!activity || !isUnlocked(activity)) return;
+
+  activeActivityId = id;
+
+  document.getElementById("modalTag").textContent =
+    activity.number + " · " +
+    (
+      sideMissions.some(a => a.id === id)
+        ? "OPTIONAL MISSION"
+        : dayOne.some(a => a.id === id)
+          ? "PART 01 · FIELDWORK"
+          : "PART 02 · BIRTHDAY"
+    );
+
+  document.getElementById("modalTitle").textContent = activity.title;
+  document.getElementById("modalCopy").textContent = activity.instructions;
+
+  document.getElementById("instructionsStage").classList.remove("hidden");
+  document.getElementById("codeStage").classList.add("hidden");
+  document.getElementById("successStage").classList.add("hidden");
+
+  document.getElementById("codeInput").value = "";
+  document.getElementById("codeError").textContent = "";
+
+  if (isCompleted(id)) {
+    document.getElementById("instructionsStage").classList.add("hidden");
+    document.getElementById("successStage").classList.remove("hidden");
+
+    let message = "This activity has already been completed.";
+
+    if (activity.evidenceTitle) {
+      message +=
+        `\n\nMESSAGE FROM VALE: ${activity.evidenceTitle}\n\n${activity.evidence}`;
+
+    } else if (allSideMissionsComplete()) {
+      message += `\n\n${sideEvidence.title}\n\n${sideEvidence.text}`;
+    }
+
+    document.getElementById("successMessage").textContent = message;
+  }
+
+  document.getElementById("modalBackdrop").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+
+function showCodeStage() {
+  if (!activeActivityId) return;
+
+  document.getElementById("instructionsStage").classList.add("hidden");
+  document.getElementById("codeStage").classList.remove("hidden");
+  document.getElementById("codeInput").focus();
+}
+
+
+/* CHECK THE COMPLETION CODE */
+
+function submitCode() {
+  const activity = ALL_ACTIVITIES.find(a => a.id === activeActivityId);
+
+  if (!activity) return;
+
+  const entered = document.getElementById("codeInput").value.trim().toUpperCase();
+
+  if (entered !== activity.code.toUpperCase()) {
+    document.getElementById("codeError").textContent =
+      "That code doesn't match. Check the code and try again.";
+    return;
+  }
+
+  document.getElementById("codeError").textContent = "";
+
+  if (!isCompleted(activity.id)) {
+    state.completed.push(activity.id);
+  }
+
+  if (allSideMissionsComplete()) {
+    state.sideEvidenceUnlocked = true;
+  }
+
+  if (ALL_ACTIVITIES.every(a => isCompleted(a.id))) {
+    state.finalEvidenceUnlocked = true;
+  }
+
+  renderAll();
+
+  document.getElementById("codeStage").classList.add("hidden");
+  document.getElementById("successStage").classList.remove("hidden");
+
+  let message = "Code accepted! Your progress has been saved.";
+
+  if (activity.evidenceTitle) {
+    message +=
+      `\n\nMESSAGE FROM VALE: ${activity.evidenceTitle}\n\n${activity.evidence}`;
+  }
+
+  if (activity.id === "pizzaSupply") {
+    message +=
+      "\n\nNEW ACCESS GRANTED!\nThe four optional activities are now available. Choose any one to begin.";
+  }
+
+  if (sideMissions.some(a => a.id === activity.id)) {
+    if (allSideMissionsComplete()) {
+      message +=
+        `\n\nALL FOUR EXPERIMENTS COMPLETE!\n\nNEW MESSAGE FROM VALE: ${sideEvidence.title}\n\n${sideEvidence.text}`;
+
+    } else {
+      const remaining = sideMissions.filter(a => !isCompleted(a.id)).length;
+
+      message +=
+        `\n\nExperiment completed. ${remaining} more ${remaining === 1 ? "activity remains" : "activities remain"} before the combined evidence is revealed.`;
+    }
+  }
+
+  if (state.completed.length === TOTAL_ACTIVITIES) {
+    message +=
+      "\n\nALL ACTIVITIES COMPLETE. THE FINAL FILE IS NOW DECLASSIFIED. Check the end of Part 2 for the final reveal.";
+  }
+
+  document.getElementById("successMessage").textContent = message;
+}
+
+
+/* RETURN TO ARCHIVE */
+
+function continueAfterSuccess() {
+  const current = ALL_ACTIVITIES.find(a => a.id === activeActivityId);
+
+  closeModal();
+
+  if (current && dayOne.some(a => a.id === current.id) && dayOneComplete()) {
+    switchPart(2);
+    return;
+  }
+
+  if (current && dayTwoMain.some(a => a.id === current.id) && dayTwoMainComplete()) {
+    switchPart(2);
+
+    document.getElementById("sideMissionsSection")
+      .scrollIntoView({behavior:"smooth",block:"start"});
+
+    return;
+  }
+
+  if (state.completed.length === TOTAL_ACTIVITIES) {
+    switchPart(2);
+
+    document.getElementById("finalCard")
+      .scrollIntoView({behavior:"smooth",block:"center"});
+  }
+}
+
+
+function closeModal() {
+  document.getElementById("modalBackdrop").classList.remove("open");
+  document.body.style.overflow = "";
+  activeActivityId = null;
+}
+
+
+function backdropClose(event) {
+  if (event.target.id === "modalBackdrop") closeModal();
+}
+
+
+document.getElementById("codeInput").addEventListener("keydown",event => {
+  if (event.key === "Enter") submitCode();
+});
+
+
+document.addEventListener("keydown",event => {
+  if (event.key === "Escape") closeModal();
+});
+
+
+/* RESET GAME */
+
+function resetGame() {
+  if (!confirm(
+    "Are you sure you want to reset the entire game?\n\nAll completed activities, unlocked files, and saved progress will be erased."
+  )) return;
+
+  localStorage.removeItem(STORAGE_KEY);
+
+  state = freshState();
+  activePart = 1;
+  activeActivityId = null;
+
+  closeModal();
+  renderAll();
+  switchPart(1);
+
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+
+/* GENERAL ACCESS CODE */
+
+function unlockArchive(event) {
+  event.preventDefault();
+
+  const input = document.getElementById("accessCode");
+  const error = document.getElementById("accessError");
+
+  if (input.value.trim() === "3") {
+    document.body.classList.remove("access-locked");
+    document.getElementById("accessGate").remove();
+
+  } else {
+    error.textContent = "Incorrect code. Please try again.";
+    input.value = "";
+    input.focus();
+  }
+}
+
+
+document.getElementById("accessForm")
+  .addEventListener("submit",unlockArchive);
+
+
+/* INITIALISE */
+
+renderAll();
+switchPart(1);
+
+</script>
+</body>
+</html>
